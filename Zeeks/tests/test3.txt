@@ -1,0 +1,10 @@
+fn main() {
+    int i = 5;
+    string text;
+
+    if [i > 0] then
+        text = "Positivo";
+    else then
+        text = "No positivo";
+    fi
+}

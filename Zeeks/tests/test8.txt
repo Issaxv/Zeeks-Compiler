@@ -1,0 +1,11 @@
+fn sumar(int a, int b): int {
+    return a + b;
+}
+
+fn main() {
+    int r;
+    r = sumar(3, 4);       // ✅ correcto
+    r = sumar(3.5, 4.2);   // ❌ tipos incompatibles
+    r = sumar(1);          // ❌ falta un argumento
+    r = sumar(1, 2, 3);    // ❌ argumentos de más
+}

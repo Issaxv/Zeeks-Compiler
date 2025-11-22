@@ -1,0 +1,16 @@
+fn calcular(): int {
+    if [true] then
+        return 5;
+    else then
+        pass;
+    fi
+}
+
+fn obtenerMensaje(): string {
+    return 42;  // ❌ Retorno de tipo incorrecto
+}
+
+fn main() {
+    int x = calcular();       // ❌ La función podría no retornar un valor
+    string s = obtenerMensaje(); // ❌ Retorna int, no string
+}

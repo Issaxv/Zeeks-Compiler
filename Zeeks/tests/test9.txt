@@ -1,0 +1,8 @@
+fn main() {
+    int x = 5;
+    int x = 10;        // ❌ redeclaración en el mismo ámbito
+
+        int x = 20;    // ✅ nuevo ámbito local (si manejamos scopes anidados)
+
+    y = 3;             // ❌ variable no declarada
+}

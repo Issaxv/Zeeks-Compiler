@@ -1,0 +1,10 @@
+fn verificar(): int {
+    if [true] then
+        return 1;
+    fi
+    // ❌ Falta return en otra rama
+}
+
+fn main() {
+    int x = verificar();
+}
