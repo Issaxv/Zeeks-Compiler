@@ -30,6 +30,7 @@ fn main() {
 
     resultado = sumar(5, 8);
 }
+```
 
 ---
 
