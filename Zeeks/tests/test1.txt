@@ -1,6 +1,0 @@
-fn main() {
-    int a;
-    char b = 'l';
-
-    a = b;   // Error: tipos incompatibles
-}

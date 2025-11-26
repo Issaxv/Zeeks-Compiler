@@ -1,8 +1,0 @@
-fn imprimir() {
-    pass;
-}
-
-fn main() {
-    int x;
-    x = imprimir();      // ❌ no se puede asignar void
-}

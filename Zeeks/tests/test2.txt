@@ -1,8 +1,0 @@
-fn sumar(int x, int y): int {
-    return x + y;
-}
-
-fn main() {
-    int resultado = sumar(2, 3);
-    resultado = sumar(2);  // Error: parámetros insuficientes
-}

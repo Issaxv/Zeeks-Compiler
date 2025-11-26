@@ -1,4 +1,0 @@
-fn main() {
-    a = 10;           // ❌ uso antes de declarar
-    int a;
-}

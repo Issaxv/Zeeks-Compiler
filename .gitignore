@@ -1,6 +1,8 @@
-__pycache__/
-*.pyc
+tests/
+
+parser.out
+parsetab.py
 
 venv/
-
-Zeeks/tests/
+__pycache__/
+*.pyc
