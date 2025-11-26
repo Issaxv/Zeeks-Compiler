@@ -114,7 +114,9 @@ def t_ENTERO(t):
     return t
 
 def t_CADENA(t):
-    r'\"([^\\\n]|(\\.))*\"'
+    r'"[^\\\"\n]*"'
+
+    t.value = t.value[1:-1]
 
     return t
 
@@ -153,7 +155,7 @@ def t_newline(t):
 def t_error(t):
     texto = t.lexer.lexdata
     inicio = t.lexpos
-    fin = min(fin, len(texto)-1)
+    fin = inicio + 1
     
     limite = ['\t', '\n', ' ', ';', '(', ')', '{', '}', '[', ']', '=', ':', '+', '-', '*', '/', ',', '\"', '\'']
 

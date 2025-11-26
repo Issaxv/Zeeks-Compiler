@@ -108,48 +108,21 @@ class TablaSimbolosVariables:
 
 
 # -------------------------------------------------
-# Tabla de Símbolos para Funciones (con sobrecarga)
+# Tabla de Símbolos para Funciones (sin sobrecarga)
 # -------------------------------------------------
 class TablaSimbolosFunciones:
     def __init__(self):
         self.funciones = {}
 
-    @staticmethod
-    def _normalizar_param_types(parametros):
-        tipos = []
-        for p in parametros or []:
-            if hasattr(p, "tipo"):
-                tipos.append(p.tipo)
-            else:
-                tipos.append(p)
-        return tuple(tipos)
-
     def insertar(self, nombre, simbolo):
-        firma = self._normalizar_param_types(simbolo.attrs.get("parametros", []))
-
-        if nombre not in self.funciones:
-            self.funciones[nombre] = {}
-
-        if firma in self.funciones[nombre]:
+        if nombre in self.funciones:
             return False
 
-        self.funciones[nombre][firma] = simbolo
+        self.funciones[nombre] = simbolo
         return True
 
-    def buscar(self, nombre, tipos_parametros=None):
-        entry = self.funciones.get(nombre)
-
-        if not entry:
-            return None
-
-        if tipos_parametros is None:
-            return entry
-
-        firma = tuple(tipos_parametros)
-        return entry.get(firma)
-
-    def buscar_todas(self, nombre):
-        return self.funciones.get(nombre, {})
+    def buscar(self, nombre):
+        return self.funciones.get(nombre)
 
 
 # -------------------------------------------------
@@ -198,12 +171,8 @@ class TablaSimbolos:
 
         return self.padre.buscar_variable(nombre) if self.padre else None
 
-    def buscar_funcion(self, nombre, tipos_parametros=None):
-        simbolo = self.funciones.buscar(nombre, tipos_parametros)
-        if simbolo:
-            return simbolo
-
-        return self.padre.buscar_funcion(nombre, tipos_parametros) if self.padre else None
+    def buscar_funcion(self, nombre):
+        return self.funciones.buscar(nombre)
 
     # ------------------------- SCOPE --------------------------
 
@@ -222,20 +191,10 @@ class TablaSimbolos:
         for nombre, simbolo in self.variables.vars.items():
             print(f"{indent}  Var: {simbolo}")
 
-        # Funciones
-        for nombre, overloads in self.funciones.funciones.items():
-            for firma, simbolo in overloads.items():
-                print(f"{indent}  Func: {simbolo}  firma={firma}")
+        # Funciones (solo en global)
+        if self.padre is None:
+            for nombre, simbolo in self.funciones.funciones.items():
+                print(f"{indent}  Func: {simbolo}")
 
         for hijo in self.hijos:
             hijo.imprimir_recursivo(nivel + 1)
-
-    def __repr__(self):
-        parts = ["Variables:"]
-        for nombre, s in self.variables.vars.items():
-            parts.append(f"  {s}")
-        parts.append("Funciones:")
-        for nombre, overloads in self.funciones.funciones.items():
-            for firma, func in overloads.items():
-                parts.append(f"  {func} firma={firma}")
-        return f"TablaSimbolos({self.nombre_scope}):\n" + "\n".join(parts)

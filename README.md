@@ -1,22 +1,24 @@
 # Zeeks Compiler
 
-A simple educational compiler built using **Python** and **PLY (Python Lex-Yacc)**.  
-This project was developed as part of my university coursework to explore the fundamentals of **lexical analysis**, **parsing**, and **compiler design**.
+A simple compiler built using **Python** and **PLY (Python Lex-Yacc)**.  
+This project was developed as part of my university coursework to understand how compilers and programming languages work.
 
 ---
 
-## 🚀 Features
+## Features
 
 - ✔️ **Custom language syntax** 
 - ✔️ **Lexer implementation** using PLY  
-- ✔️ **Parser with grammar rules** and AST construction  
 - ✔️ **Token classification** for identifiers, numbers, data types, operators, and punctuation  
-- ✔️ **Error handling** (lexical & syntactic)  
+- ✔️ **Parser with grammar rules** and AST construction  
 - ✔️ Generates a **syntax tree** using a custom `Nodo` class  
+-   **Semantic check** and symbol table generation
+-   Modifying the AST to create a **Decorated AST**
+- ✔️ **Error handling** (lexical, syntactic and semantic)  
 
 ---
 
-## 🔤 Supported Language Example
+## Supported Language Example
 
 Here’s a simple example of a valid program in the Zeeks language:
 
@@ -34,26 +36,26 @@ fn main() {
 
 ---
 
-##🧠 How It Works
-### 1️⃣ Lexical Analysis
+## How It Works
+### Lexical Analysis
 
-The lexer.py file defines:
+The LexScan.py file defines:
 
 - Tokens
 - Reserved words
 - Regular expressions
 - Error handling for invalid characters
 
-### 2️⃣ Parsing
+### Parsing
 
-The parser.py file includes:
+The SintacScan.py file includes:
 
 - Grammar using PLY’s YACC module
 - Operator precedence
 - Parse tree construction
 - Syntax error handling
 
-### 3️⃣ Abstract Syntax Tree (AST)
+### Abstract Syntax Tree (AST)
 
 The project uses a custom Nodo class to build a structured, navigable AST useful for:
 
@@ -61,29 +63,42 @@ The project uses a custom Nodo class to build a structured, navigable AST useful
 - Interpretation
 - Debugging
 
-## 🛠️ Installation & Usage
-#### 🔽 Clone the repository
+### Semantic analyzer
+
+The SemanticScan.py file includes:
+
+- Custom semantic checks
+- Initialization of variables with default values
+- Modification of the AST to convert it into a decorated AST
+- Generation of the symbols table
+
+### Symbols table
+
+- Helps with semantic analysis
+- Records functions and variables
+- Manages scopes
+
+## Installation & Usage
+#### Clone the repository
 
 ```bash
 git clone https://github.com/[your-username]/compiler.git
 cd compiler
 ```
 
-#### 📦 Install dependencies
+#### Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-####   Run the compiler
+#### Run the compiler
 
 ```bash
 python zeeks/zeeks.py [options] sourceFile.txt
 ```
 
-📝 Roadmap / Future Improvements
-
-- Add semantic analysis
+Roadmap / Future Improvements
 
 - Implement code generation (Quadruples and Assembler code)
 
