@@ -94,7 +94,7 @@ t_DOSPTOS   = r':'
 
 #Expresión regular asociada a los tipos de datos
 def t_TIPO(t):
-    r'int|float|bool|char|string'
+    r'\b(int|float|bool|char|string)\b'
 
     return t
 
@@ -114,15 +114,42 @@ def t_ENTERO(t):
     return t
 
 def t_CADENA(t):
-    r'"[^\\\"\n]*"'
+    r'"(?:[^"\\]|\\.)*"'
 
-    t.value = t.value[1:-1]
+    raw = t.value[1:-1]
 
+    escapes = {
+        '\\n': '\n',
+        '\\t': '\t',
+        '\\r': '\r',
+        '\\"': '"',
+        "\\'": "'",
+        '\\\\': '\\',
+    }
+
+    for k, v in escapes.items():
+        raw = raw.replace(k, v)
+
+    t.value = raw
     return t
 
 def t_CARACTER(t):
     r'\'([^\\\n]|(\\.))\''
+    raw = t.value[1:-1]
 
+    escapes = {
+        '\\n': '\n',
+        '\\t': '\t',
+        '\\r': '\r',
+        '\\"': '"',
+        "\\'": "'",
+        '\\\\': '\\',
+    }
+
+    for k, v in escapes.items():
+        raw = raw.replace(k, v)
+
+    t.value = raw
     return t
 
 #Expresicón regular y acción asociada para IDENTIFCADORES
@@ -157,7 +184,7 @@ def t_error(t):
     inicio = t.lexpos
     fin = inicio + 1
     
-    limite = ['\t', '\n', ' ', ';', '(', ')', '{', '}', '[', ']', '=', ':', '+', '-', '*', '/', ',', '\"', '\'']
+    limite = set(['\t', '\n', ' ', ';', '(', ')', '{', '}', '[', ']', '=', ':', '+', '-', '*', '/', ',', '"', "'", '%', '&', '|', '<', '>', '!'])
 
     while fin < len(texto) and texto[fin] not in limite:
         fin += 1

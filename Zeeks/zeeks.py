@@ -12,11 +12,15 @@
 import sys
 import os
 import argparse
+import tempfile
+import subprocess
 
+from GeneradorASM import generar_asm
 from LexScan import crear_lexer, obtener_tokens
 from SintacScan import analisis_sintactico
 from SemanticScan import analizar_semanticamente
 from DataStructures import Nodo, TablaSimbolos
+from Intermedio import generar_codigo_intermedio, exportar_as_list, imprimir as imprimir_ci
 
 def imprimir_tokens(tokens):
     if not tokens:
@@ -46,8 +50,47 @@ def imprimir_errores(lex, sint, sem=None):
         print("\n--- Errores semánticos ---")
         for e in sem: print(e)
 
+
+def ensamblar_y_linkear(codigoASM, helpers_obj="LibStd/helpers.o", output_exe="programa"):
+    import tempfile, subprocess, os
+
+    with tempfile.NamedTemporaryFile(suffix=".asm", delete=False) as f:
+        f.write(codigoASM.encode('utf-8'))
+        asm_file = f.name
+
+    obj_file = asm_file.replace('.asm', '.o')
+
+    try:
+        # Ensamblar
+        subprocess.run(['nasm', '-f', 'elf64', asm_file, '-o', obj_file], check=True)
+
+        # Linux loader (suele ser este en x86_64)
+        ld_linux = "/lib64/ld-linux-x86-64.so.2"
+
+        # Ruta típica de libc en Ubuntu/Debian
+        libc = "/usr/lib/x86_64-linux-gnu/libc.so.6"
+
+        # Linkear manualmente con ld (sin GCC)
+        subprocess.run([
+            'ld',
+            obj_file,
+            helpers_obj,
+            '-lc',
+            libc,
+            '-dynamic-linker', ld_linux,
+            '-o', output_exe
+        ], check=True)
+
+        print(f"✅ Ejecutable generado: {output_exe}")
+
+    finally:
+        os.remove(asm_file)
+        if os.path.exists(obj_file):
+            os.remove(obj_file)
+
+
 def main():
-    version = "v0.6"
+    version = "v1.0"
 
     parser_cli = argparse.ArgumentParser(
         prog="zeeks.py",
@@ -95,6 +138,10 @@ def main():
 
     print("✅ Fase de análisis completada sin errores.")
     print("\n🧠 Ejecutando generación de código...")
+    
+    cuadruplos = generar_codigo_intermedio(arbol, tabla_simbolos)
+
+    codigoASM = generar_asm(cuadruplos, tabla_simbolos)
 
     if args.tokens or args.verbose:
         lex,_ = crear_lexer()
@@ -114,16 +161,20 @@ def main():
         print("\n--- Tabla de Símbolos ---")
         tabla_simbolos.imprimir_recursivo()
 
-    # ==================================================
-    # Etapas futuras (intermedio y ensamblador)
-    # ==================================================
     if args.lenguaje_intermedio or args.verbose:
-        print("\n--- Lenguaje Intermedio (pendiente de implementar) ---")
-        print("🧱 Generando cuadruplos (pendiente)...")
+        print("\n--- Lenguaje Intermedio ---")
+        try:
+            imprimir_ci()
+        except Exception:
+            print("Cuadruplos (raw):")
+            for i, q in enumerate(cuadruplos):
+                print(f"{i:03}: {q}")
 
     if args.asembler or args.verbose:
-        print("\n--- Código Ensamblador (pendiente de implementar) ---")
-        print("⚙️ Generando código ensamblador (pendiente)...")
+        print("\n--- Código Ensamblador ---")
+        print(codigoASM)
+
+    ensamblar_y_linkear(codigoASM, output_exe=args.archivo_fuente[:-4] + '.o')
 
 
 if __name__ == '__main__':

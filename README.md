@@ -3,18 +3,23 @@
 A simple compiler built using **Python** and **PLY (Python Lex-Yacc)**.  
 This project was developed as part of my university coursework to understand how compilers and programming languages work.
 
+
+This project now includes a full intermediate representation (IR) and a working NASM x86_64 backend.
+
 ---
 
 ## Features
 
-- ✔️ **Custom language syntax** 
-- ✔️ **Lexer implementation** using PLY  
-- ✔️ **Token classification** for identifiers, numbers, data types, operators, and punctuation  
-- ✔️ **Parser with grammar rules** and AST construction  
-- ✔️ Generates a **syntax tree** using a custom `Nodo` class  
--   **Semantic check** and symbol table generation
--   Modifying the AST to create a **Decorated AST**
-- ✔️ **Error handling** (lexical, syntactic and semantic)  
+- Custom **Zeeks language** with simple C-like syntax  
+- **Lexer** built with PLY  
+- **Parser** generating an AST using a custom `Nodo` class  
+- **Semantic analyzer** with symbol table, type checking, and AST decoration  
+- **Intermediate Representation (Quadruples)** for lower-level translation  
+- **Assembler code generator (NASM + Linux x86_64)**  
+- Error handling at all stages:
+  - Lexical  
+  - Syntactic  
+  - Semantic  
 
 ---
 
@@ -28,7 +33,7 @@ fn sumar(int n1, int n2): int {
 }
 
 fn main() {
-    float resultado;
+    int resultado;
 
     resultado = sumar(5, 8);
 }
@@ -41,7 +46,7 @@ fn main() {
 
 The LexScan.py file defines:
 
-- Tokens
+- Tokens definitions
 - Reserved words
 - Regular expressions
 - Error handling for invalid characters
@@ -59,7 +64,6 @@ The SintacScan.py file includes:
 
 The project uses a custom Nodo class to build a structured, navigable AST useful for:
 
-- Future code generation
 - Interpretation
 - Debugging
 
@@ -78,18 +82,57 @@ The SemanticScan.py file includes:
 - Records functions and variables
 - Manages scopes
 
+### Intermediate Representation (Intermedio.py)
+
+The Intermedio.py file includes:
+
+- Quadruple-based IR (operator, arg1, arg2, result)
+- Label generation
+- Control flow handling
+- Temporary values
+- Used as the bridge between AST and ASM
+
+### Assembly Code Generator (NASM)
+
+The GeneradorASM.py file includes:
+
+- Function prologues/epilogues
+- Stack frame allocation
+- Calls to runtime helpers (helpers.c)
+- Support for string printing, arithmetic, assignments and control flow
+- Output is valid NASM x86_64 Linux code
+
+
+### Runtime Helpers
+The file helpers.c provides runtime functions used by the ASM generator, including:
+
+- print_str, print_int, print_float
+- string concatenation (__strcat)
+- integer/float conversion helpers
+- array access (future feature)
+
+---
+
 ## Installation & Usage
 #### Clone the repository
 
 ```bash
-git clone https://github.com/[your-username]/compiler.git
+git clone https://github.com/Issaxv/Zeeks-Compiler.git
 cd compiler
 ```
 
-#### Install dependencies
+#### Install Python dependencies
 
 ```bash
 pip install -r requirements.txt
+```
+
+#### Install NASM (required for assembly generation)
+
+Debian/WSL
+
+```bash
+sudo apt install nasm
 ```
 
 #### Run the compiler
@@ -98,10 +141,16 @@ pip install -r requirements.txt
 python zeeks/zeeks.py [options] sourceFile.txt
 ```
 
-Roadmap / Future Improvements
+---
 
-- Implement code generation (Quadruples and Assembler code)
+## Platform Support
 
-- Add test suite
+- Fully supported on Linux x86_64
+- Works on Windows via WSL
 
-- Create a full CLI interface
+---
+
+## Status
+
+The compiler is functional for simple programs.
+Some features remain incomplete, but the core pipeline is stable, modular, and ready for extension.

@@ -229,8 +229,8 @@ def p_if_instr(p):
     '''if_instr : IF COR_A expresion COR_C THEN instrucciones elif_opt else_opt FI'''
     hijos_if = [p[3], Nodo("Cuerpo", hijos=p[6])]
 
-    h_elif = p[8] if isinstance(p[8], list) else []
-    h_else = p[9] if isinstance(p[9], list) else []
+    h_elif = p[7] if isinstance(p[7], list) else []
+    h_else = p[8] if isinstance(p[8], list) else []
 
     p[0] = Nodo("If", hijos=hijos_if + h_elif + h_else, linea=p.lineno(1))
 
@@ -243,13 +243,13 @@ def p_elif_instrs(p):
     '''elif_instrs : elif elif_instrs
                    | elif'''
     if len(p) == 3:
-        p[0] = [p[1]] + p[3]
+        p[0] = [p[1]] + p[2]
     else:
         p[0] = [p[1]]
 
 def p_elif(p):
     '''elif : ELIF COR_A expresion COR_C THEN instrucciones'''
-    p[0] = Nodo("Elif", hijos=[p[3]] + [Nodo("Cuerpo", hijos=p[6])])
+    p[0] = Nodo("Elif", hijos=[p[3], Nodo("Cuerpo", hijos=p[6])])
 
 def p_else_opt(p):
     '''else_opt : ELSE THEN instrucciones

@@ -29,6 +29,10 @@ def agregar_error(mensaje, linea=None):
     linea_str = f" en línea {linea}" if linea else ""
     errores_semanticos.append(f"❌ Error semántico{linea_str}: {mensaje}")
 
+def agregar_warning(mensaje, linea=None):
+    linea_str = f" en línea {linea}" if linea else ""
+    errores_semanticos.append(f"⚠️ Advertencia {linea_str}: {mensaje}")
+
 def decorar_nodo(nodo, **atributos):
     nodo.attrs.update(atributos)
 
@@ -545,7 +549,24 @@ def visitar_llamada_funcion(nodo: Nodo, en_expresion=False):
     nombre_funcion = nodo.valor
     argumentos = nodo.hijos
     tipos_args = [visitar_expresion(a) for a in argumentos]
-    
+
+    HELPER_FUNCS = {
+        'print_int': 'void',
+        'print_float': 'void',
+        'print_str': 'void',
+        '__strcat': 'string',
+        '__to_string': 'string',
+        '__itof': 'float',
+        '__arr_load': 'int',
+        '__arr_store': 'void',
+        '__array_len': 'int'
+    }
+
+    if nombre_funcion in HELPER_FUNCS:
+        tipo_retorno = HELPER_FUNCS[nombre_funcion]
+        decorar_nodo(nodo, tipo_inferido=tipo_retorno, simbolo=None)
+        return tipo_retorno
+
     simbolo_func = tabla_global.buscar_funcion(nombre_funcion)
     if not simbolo_func:
         agregar_error(f"Función '{nombre_funcion}' no declarada", nodo.linea)
@@ -847,4 +868,14 @@ def limpiar_estado():
 def analizar_semanticamente(arbol):
     limpiar_estado()
     analizar(arbol)
+
+    simbolo_main = tabla_global.buscar_funcion('main')
+    if not simbolo_main:
+        agregar_error("No se encontró función 'main' como punto de entrada (se esperaba 'void main()')", None)
+    else:
+        main_tipo = simbolo_main.tipo or 'void'
+        main_params = simbolo_main.attrs.get('parametros', [])
+        if main_tipo != 'void' or len(main_params) != 0:
+            agregar_error("Función 'main' debe tener firma 'void main()' sin parámetros", None)
+
     return tabla_global, errores_semanticos
